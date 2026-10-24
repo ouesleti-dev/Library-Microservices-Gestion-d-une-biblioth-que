@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="850" viewBox="0 0 1400 850">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .title{font:bold 28px Arial;fill:#0f172a}.label{font:bold 17px Arial;fill:#0f172a}
+      .text{font:14px Arial;fill:#334155}.box{stroke-width:2;rx:14}
+      .line{stroke:#334155;stroke-width:2;marker-end:url(#arrow)}
+      .dashed{stroke:#d97706;stroke-width:2;stroke-dasharray:8 6;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1400" height="850" fill="#fff"/>
+  <text x="700" y="42" text-anchor="middle" class="title">Architecture globale - Library Microservices</text>
+
+  <rect x="35" y="80" width="220" height="105" class="box" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="145" y="120" text-anchor="middle" class="label">Client</text>
+  <text x="145" y="150" text-anchor="middle" class="text">Swagger - Postman - curl</text>
+
+  <rect x="310" y="65" width="330" height="135" class="box" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="475" y="105" text-anchor="middle" class="label">API Gateway</text>
+  <text x="475" y="135" text-anchor="middle" class="text">Spring Cloud Gateway</text>
+  <text x="475" y="165" text-anchor="middle" class="text">port 8080 - point d'entree unique</text>
+
+  <rect x="1040" y="65" width="300" height="135" class="box" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="1190" y="105" text-anchor="middle" class="label">Eureka Server</text>
+  <text x="1190" y="135" text-anchor="middle" class="text">Spring Cloud Netflix</text>
+  <text x="1190" y="165" text-anchor="middle" class="text">port 8761</text>
+
+  <line x1="255" y1="132" x2="310" y2="132" class="line"/>
+  <line x1="640" y1="132" x2="1040" y2="132" class="dashed"/>
+  <text x="840" y="115" text-anchor="middle" class="text">decouverte des services</text>
+
+  <rect x="20" y="245" width="1360" height="555" rx="18" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="8 6"/>
+  <text x="45" y="280" class="text">Services metier - accessibles par le gateway et enregistres dans Eureka</text>
+
+  <g class="box">
+    <rect x="55" y="325" width="230" height="115" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="170" y="365" text-anchor="middle" class="label">Book Service</text><text x="170" y="395" text-anchor="middle" class="text">:8081 - Spring Boot</text><text x="170" y="420" text-anchor="middle" class="text">MySQL - book_db</text>
+    <rect x="315" y="325" width="230" height="115" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="430" y="365" text-anchor="middle" class="label">Member Service</text><text x="430" y="395" text-anchor="middle" class="text">:8082 - Spring Boot</text><text x="430" y="420" text-anchor="middle" class="text">PostgreSQL - member_db</text>
+    <rect x="575" y="325" width="230" height="115" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="690" y="365" text-anchor="middle" class="label">Borrowing Service</text><text x="690" y="395" text-anchor="middle" class="text">:8083 - Spring Boot</text><text x="690" y="420" text-anchor="middle" class="text">H2 - borrowingdb</text>
+    <rect x="835" y="325" width="230" height="115" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="950" y="365" text-anchor="middle" class="label">Reservation Service</text><text x="950" y="395" text-anchor="middle" class="text">:8084 - Spring Boot</text><text x="950" y="420" text-anchor="middle" class="text">H2 - reservationdb</text>
+    <rect x="1095" y="325" width="230" height="115" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="1210" y="365" text-anchor="middle" class="label">Fine Service</text><text x="1210" y="395" text-anchor="middle" class="text">:8085 - Spring Boot</text><text x="1210" y="420" text-anchor="middle" class="text">H2 - finedb</text>
+    <rect x="230" y="555" width="230" height="115" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="345" y="595" text-anchor="middle" class="label">Review Service</text><text x="345" y="625" text-anchor="middle" class="text">:8086 - Spring Boot</text><text x="345" y="650" text-anchor="middle" class="text">H2 - reviewdb</text>
+    <rect x="535" y="555" width="260" height="115" fill="#fef3c7" stroke="#ca8a04"/>
+    <text x="665" y="595" text-anchor="middle" class="label">Notification Service</text><text x="665" y="625" text-anchor="middle" class="text">Node.js - Express</text><text x="665" y="650" text-anchor="middle" class="text">port selon PORT</text>
+    <rect x="870" y="555" width="260" height="115" fill="#dbeafe" stroke="#2563eb"/>
+    <text x="1000" y="595" text-anchor="middle" class="label">Statistics Service</text><text x="1000" y="625" text-anchor="middle" class="text">Python - FastAPI</text><text x="1000" y="650" text-anchor="middle" class="text">port selon PORT</text>
+  </g>
+
+  <line x1="475" y1="200" x2="170" y2="325" class="line"/><line x1="475" y1="200" x2="430" y2="325" class="line"/>
+  <line x1="475" y1="200" x2="690" y2="325" class="line"/><line x1="475" y1="200" x2="950" y2="325" class="line"/>
+  <line x1="475" y1="200" x2="1210" y2="325" class="line"/><line x1="475" y1="200" x2="345" y2="555" class="line"/>
+  <line x1="475" y1="200" x2="665" y2="555" class="line"/><line x1="475" y1="200" x2="1000" y2="555" class="line"/>
+
+  <line x1="690" y1="440" x2="170" y2="500" class="line"/><line x1="690" y1="440" x2="665" y2="555" class="line"/>
+  <line x1="950" y1="440" x2="170" y2="500" class="line"/><line x1="950" y1="440" x2="430" y2="500" class="line"/>
+  <line x1="1210" y1="440" x2="430" y2="500" class="line"/>
+  <text x="700" y="735" text-anchor="middle" class="text">Les clients utilisent le port 8080; les services communiquent entre eux par Eureka.</text>
+</svg>

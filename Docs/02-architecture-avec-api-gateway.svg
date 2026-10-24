@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="850" viewBox="0 0 1400 850">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .title { font: bold 28px Arial; fill: #0f172a; }
+      .label { font: bold 17px Arial; fill: #0f172a; }
+      .text { font: 14px Arial; fill: #334155; }
+      .box { stroke-width: 2; rx: 14; }
+      .line { stroke: #334155; stroke-width: 2; marker-end: url(#arrow); }
+      .dashed { stroke: #d97706; stroke-width: 2; stroke-dasharray: 8 6; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1400" height="850" fill="#ffffff"/>
+  <text x="700" y="42" text-anchor="middle" class="title">Architecture globale - Library Microservices</text>
+
+  <rect x="40" y="90" width="220" height="100" class="box" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="150" y="130" text-anchor="middle" class="label">Client</text>
+  <text x="150" y="160" text-anchor="middle" class="text">Swagger - Postman - curl</text>
+
+  <rect x="330" y="80" width="300" height="120" class="box" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="480" y="125" text-anchor="middle" class="label">API Gateway</text>
+  <text x="480" y="153" text-anchor="middle" class="text">Spring Cloud Gateway</text>
+  <text x="480" y="178" text-anchor="middle" class="text">port 8080 - point d'entree unique</text>
+
+  <rect x="970" y="80" width="300" height="120" class="box" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="1120" y="125" text-anchor="middle" class="label">Eureka Server</text>
+  <text x="1120" y="153" text-anchor="middle" class="text">Spring Cloud Netflix</text>
+  <text x="1120" y="178" text-anchor="middle" class="text">port 8761 - registre</text>
+
+  <line x1="260" y1="140" x2="330" y2="140" class="line"/>
+  <line x1="630" y1="140" x2="970" y2="140" class="dashed"/>
+  <text x="800" y="125" text-anchor="middle" class="text">decouverte et load-balancing</text>
+
+  <rect x="30" y="260" width="1340" height="520" rx="18" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="8 6"/>
+  <text x="55" y="295" class="text">Services metier - chaque service s'enregistre dans Eureka</text>
+
+  <rect x="70" y="340" width="230" height="115" class="box" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="185" y="378" text-anchor="middle" class="label">Book Service</text>
+  <text x="185" y="407" text-anchor="middle" class="text">port 8081 - MySQL</text>
+  <text x="185" y="430" text-anchor="middle" class="text">book_db</text>
+
+  <rect x="335" y="340" width="230" height="115" class="box" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="450" y="378" text-anchor="middle" class="label">Member Service</text>
+  <text x="450" y="407" text-anchor="middle" class="text">port 8082 - PostgreSQL</text>
+  <text x="450" y="430" text-anchor="middle" class="text">member_db</text>
+
+  <rect x="600" y="340" width="230" height="115" class="box" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="715" y="378" text-anchor="middle" class="label">Borrowing Service</text>
+  <text x="715" y="407" text-anchor="middle" class="text">port 8083 - H2</text>
+  <text x="715" y="430" text-anchor="middle" class="text">emprunts</text>
+
+  <rect x="865" y="340" width="230" height="115" class="box" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="980" y="378" text-anchor="middle" class="label">Reservation Service</text>
+  <text x="980" y="407" text-anchor="middle" class="text">port 8084 - H2</text>
+  <text x="980" y="430" text-anchor="middle" class="text">reservations</text>
+
+  <rect x="1130" y="340" width="200" height="115" class="box" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="1230" y="378" text-anchor="middle" class="label">Fine Service</text>
+  <text x="1230" y="407" text-anchor="middle" class="text">port 8085 - H2</text>
+  <text x="1230" y="430" text-anchor="middle" class="text">amendes</text>
+
+  <rect x="210" y="550" width="230" height="115" class="box" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="325" y="588" text-anchor="middle" class="label">Review Service</text>
+  <text x="325" y="617" text-anchor="middle" class="text">port 8086 - H2</text>
+  <text x="325" y="640" text-anchor="middle" class="text">avis</text>
+
+  <rect x="500" y="550" width="260" height="115" class="box" fill="#fef3c7" stroke="#ca8a04"/>
+  <text x="630" y="588" text-anchor="middle" class="label">Notification Service</text>
+  <text x="630" y="617" text-anchor="middle" class="text">Node.js - Express</text>
+  <text x="630" y="640" text-anchor="middle" class="text">port defini par PORT</text>
+
+  <rect x="820" y="550" width="260" height="115" class="box" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="950" y="588" text-anchor="middle" class="label">Statistics Service</text>
+  <text x="950" y="617" text-anchor="middle" class="text">Python - FastAPI</text>
+  <text x="950" y="640" text-anchor="middle" class="text">port defini par PORT</text>
+
+  <line x1="480" y1="200" x2="185" y2="340" class="line"/>
+  <line x1="480" y1="200" x2="450" y2="340" class="line"/>
+  <line x1="480" y1="200" x2="715" y2="340" class="line"/>
+  <line x1="480" y1="200" x2="980" y2="340" class="line"/>
+  <line x1="480" y1="200" x2="1230" y2="340" class="line"/>
+  <line x1="480" y1="200" x2="325" y2="550" class="line"/>
+  <line x1="480" y1="200" x2="630" y2="550" class="line"/>
+  <line x1="480" y1="200" x2="950" y2="550" class="line"/>
+
+  <line x1="715" y1="455" x2="185" y2="500" class="line"/>
+  <text x="445" y="480" text-anchor="middle" class="text">REST via Eureka</text>
+  <line x1="715" y1="455" x2="630" y2="550" class="line"/>
+  <line x1="980" y1="455" x2="185" y2="500" class="line"/>
+  <line x1="980" y1="455" x2="450" y2="500" class="line"/>
+  <line x1="1230" y1="455" x2="450" y2="500" class="line"/>
+  <line x1="325" y1="665" x2="185" y2="700" class="dashed"/>
+  <line x1="450" y1="455" x2="1120" y2="200" class="dashed"/>
+  <line x1="185" y1="455" x2="1120" y2="200" class="dashed"/>
+
+  <text x="700" y="735" text-anchor="middle" class="text">Les bases de donnees restent isolees par microservice.</text>
+</svg>

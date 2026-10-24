@@ -102,11 +102,12 @@ Chaque service possède **son propre modèle** ; il n'y a aucune clé étrangèr
 
 ### 3.1 Vue d'ensemble
 
-![Architecture globale](Docs/01-architecture-globale.png)
+![Architecture globale avec API Gateway](Docs/01-architecture-globale-avec-gateway.svg)
 
 ```mermaid
 flowchart LR
     Client["Client<br/>(Swagger, Postman, curl)"]
+    GATEWAY["API Gateway<br/>:8080<br/>Spring Cloud Gateway"]
 
     subgraph REG["Registre de services"]
         EUR["Eureka Server<br/>:8761"]
@@ -125,11 +126,12 @@ flowchart LR
     PG[("PostgreSQL<br/>member_db")]
     H2[("H2 mémoire<br/>borrowingdb")]
 
-    Client --> BOOK
-    Client --> MEMBER
-    Client --> BORROW
-    Client --> NOTIF
-    Client --> STAT
+    Client --> GATEWAY
+    GATEWAY --> BOOK
+    GATEWAY --> MEMBER
+    GATEWAY --> BORROW
+    GATEWAY --> NOTIF
+    GATEWAY --> STAT
 
     BORROW -- "REST (par nom)" --> BOOK
     BORROW -- "REST (par nom)" --> MEMBER
@@ -142,6 +144,7 @@ flowchart LR
     BORROW -. "s'enregistre" .-> EUR
     NOTIF -. "s'enregistre" .-> EUR
     STAT -. "s'enregistre" .-> EUR
+    GATEWAY -. "s'enregistre" .-> EUR
 
     BOOK --- MYSQL
     MEMBER --- PG
@@ -153,11 +156,15 @@ flowchart LR
 | Microservice | Technologie | Port | Nom dans Eureka | Base de données |
 |--------------|-------------|------|-----------------|-----------------|
 | Eureka Server | Spring Boot + Spring Cloud Netflix | 8761 | — | — |
+| API Gateway | Spring Cloud Gateway + Eureka Client | 8080 | `API-GATEWAY` | — |
 | Book Service | Spring Boot, Spring Data JPA | 8081 | `BOOK-SERVICE` | **MySQL** (`book_db`) |
 | Member Service | Spring Boot, Spring Data JPA | 8082 | `MEMBER-SERVICE` | **PostgreSQL** (`member_db`) |
 | Borrowing Service | Spring Boot, Spring Data JPA, `RestClient` | 8083 | `BORROWING-SERVICE` | **H2** en mémoire |
-| Notification Service | Node.js, Express, `eureka-js-client` | 8084 | `NOTIFICATION-SERVICE` | Aucune (en mémoire) |
-| Statistics Service | Python, FastAPI, Uvicorn, `py-eureka-client` | 8085 | `STATISTICS-SERVICE` | Aucune |
+| Notification Service | Node.js, Express, `eureka-js-client` | — | `NOTIFICATION-SERVICE` | Aucune (en mémoire) |
+| Statistics Service | Python, FastAPI, Uvicorn, `py-eureka-client` | — | `STATISTICS-SERVICE` | Aucune |
+| Reservation Service | Spring Boot, Spring Data JPA, `RestClient` | 8084 | `RESERVATION-SERVICE` | **H2** en mémoire |
+| Fine Service | Spring Boot, Spring Data JPA, `RestClient` | 8085 | `FINE-SERVICE` | **H2** en mémoire |
+| Review Service | Spring Boot, Spring Data JPA, `RestClient` | 8086 | `REVIEW-SERVICE` | **H2** en mémoire |
 
 Versions : **Java 17+**, **Spring Boot 3.3.5**, **Spring Cloud 2023.0.3**, springdoc-openapi 2.6.0.
 
@@ -170,7 +177,25 @@ Versions : **Java 17+**, **Spring Boot 3.3.5**, **Spring Cloud 2023.0.3**, sprin
 | 3 | Borrowing | Notification | Envoyer une notification (`POST`) |
 | 4 | Statistics | Book | Récupérer les livres (`GET`) |
 | 5 | Statistics | Borrowing | Récupérer les emprunts (`GET`) |
-| 6 | Tous | Eureka | Inscription, heartbeat, consultation du registre |
+| 6 | Reservation | Book, Member | Vérifier le livre et le membre (`GET`) |
+| 7 | Fine | Member, Borrowing | Vérifier le membre et l'emprunt (`GET`) |
+| 8 | Review | Book, Member | Vérifier le livre et le membre (`GET`) |
+| 9 | Tous | Eureka | Inscription, heartbeat, consultation du registre |
+
+### 3.4 Routes de l'API Gateway
+
+Les clients utilisent désormais `http://localhost:8080` comme point d'entrée :
+
+| Préfixe public | Service cible |
+|----------------|---------------|
+| `/api/books/**` | `book-service` |
+| `/api/members/**` | `member-service` |
+| `/api/borrowings/**` | `borrowing-service` |
+| `/api/reservations/**` | `reservation-service` |
+| `/api/fines/**` | `fine-service` |
+| `/api/reviews/**` | `review-service` |
+| `/api/notifications/**` | `notification-service` |
+| `/api/statistics/**` | `statistics-service` |
 
 ### 3.4 Scénario : création d'un emprunt
 
@@ -580,7 +605,7 @@ library-microservices/
 
 - Notifications **en mémoire** : perdues à l'arrêt, non partagées entre instances → ajouter une base (MongoDB, Redis…).
 - Pas d'**authentification** (JWT, Keycloak).
-- Pas d'**API Gateway** (Spring Cloud Gateway) comme point d'entrée unique.
+- L'**API Gateway** (`api-gateway`, port `8080`) est le point d'entrée unique et route vers les services via Eureka.
 - Pas de **résilience avancée** (Resilience4j : circuit breaker, retry).
 - Communication **synchrone** uniquement → un bus de messages (Kafka, RabbitMQ) pourrait découpler les notifications.
 - **Conteneurisation** (Docker Compose) et orchestration (Kubernetes).
