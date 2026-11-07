@@ -1,19 +1,29 @@
 package com.library.book.service;
 
+import com.library.book.client.BorrowingClient;                  // NOUVEAU
+import com.library.book.exception.ConflictException;             // NOUVEAU
 import com.library.book.exception.ResourceNotFoundException;
 import com.library.book.model.Book;
 import com.library.book.repository.BookRepository;
 import org.springframework.stereotype.Service;
+import com.library.book.client.ReviewClient;
+import com.library.book.dto.BookDetailsResponse;
+import com.library.book.dto.ReviewDto;
 
 import java.util.List;
 
 @Service
 public class BookService {
-
+    private ReviewClient reviewClient;
     private final BookRepository repository;
+    private final BorrowingClient borrowingClient;               // NOUVEAU
 
-    public BookService(BookRepository repository) {
+    public BookService(BookRepository repository,
+                       BorrowingClient borrowingClient,
+                       ReviewClient reviewClient) {
         this.repository = repository;
+        this.borrowingClient = borrowingClient;
+        this.reviewClient = reviewClient;
     }
 
     public List<Book> findAll() {
@@ -23,6 +33,13 @@ public class BookService {
     public Book findById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Livre introuvable (id=" + id + ")"));
+    }
+    public BookDetailsResponse getDetails(Long id) {
+        Book book = findById(id);                                    // 404 si le livre n'existe pas
+        List<ReviewDto> reviews = reviewClient.getReviewsByBook(id); // appel synchrone vers review-service
+        double average = reviews.stream().mapToInt(ReviewDto::rating).average().orElse(0.0);
+        average = Math.round(average * 10.0) / 10.0;
+        return new BookDetailsResponse(book, reviews, average, reviews.size());
     }
 
     public Book create(Book book) {
@@ -42,6 +59,15 @@ public class BookService {
 
     public void delete(Long id) {
         Book existing = findById(id);
+
+        // NOUVEAU : appel synchrone vers borrowing-service (via Feign)
+        boolean borrowed = borrowingClient.getAllBorrowings().stream()
+                .anyMatch(b -> id.equals(b.bookId()) && "BORROWED".equals(b.status()));
+        if (borrowed) {
+            throw new ConflictException(
+                    "Impossible de supprimer le livre (id=" + id + ") : il est actuellement emprunte");
+        }
+
         repository.delete(existing);
     }
 }

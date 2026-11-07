@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
+import com.library.book.dto.BookDetailsResponse;
 import java.util.List;
 
 @RestController
@@ -32,7 +32,11 @@ public class BookController {
     public Book getById(@PathVariable Long id) {
         return service.findById(id);
     }
-
+    @GetMapping("/{id}/details")
+    @Operation(summary = "Livre avec ses avis (appel synchrone a review-service via OpenFeign)")
+    public BookDetailsResponse getDetails(@PathVariable Long id) {
+        return service.getDetails(id);
+    }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Creer un livre")
