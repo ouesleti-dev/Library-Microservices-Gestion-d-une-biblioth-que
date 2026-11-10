@@ -8,7 +8,13 @@ const { Eureka } = require('eureka-js-client');
 app.use(express.json());
 app.get('/health', (req, res) => res.json({ status: 'UP' }));
 app.use('/api/notifications', notificationRoutes);
-
+const openApiSpec = {
+  openapi: '3.0.0',
+  info: { title: 'Notification Service', version: '1.0.0' },
+  servers: [{ url: 'http://localhost:8090/notification-service' }],
+  paths: {},
+};
+app.get('/v3/api-docs', (req, res) => res.json(openApiSpec));
 // Route inconnue -> 404 JSON
 app.use((req, res) => {
   res.status(404).json({ status: 404, error: 'Not Found', message: `Route introuvable : ${req.method} ${req.originalUrl}` });

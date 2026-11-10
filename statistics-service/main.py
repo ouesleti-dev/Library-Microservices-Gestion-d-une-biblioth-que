@@ -50,6 +50,8 @@ app = FastAPI(
     description="Statistiques simples sur les livres et les emprunts de la bibliotheque.",
     version="1.0.0",
     lifespan=lifespan,
+    openapi_url="/v3/api-docs",
+    servers=[{"url": "http://localhost:8090/statistics-service"}],
 )
 
 
