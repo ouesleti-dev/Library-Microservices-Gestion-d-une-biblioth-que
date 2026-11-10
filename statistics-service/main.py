@@ -12,6 +12,8 @@ import py_eureka_client.eureka_client as eureka_client
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from py_eureka_client.http_client import HTTPError
+import asyncio
+from book_consumer import run_consumer, load_initial, books_state
 
 # Le port declare a Eureka doit etre le meme que celui d'Uvicorn
 PORT = int(os.getenv("PORT", "8085"))
@@ -38,12 +40,17 @@ async def lifespan(app: FastAPI):
         print(f"Statistics Service enregistre dans Eureka ({EUREKA_SERVER})")
     except Exception as exc:
         print(f"Eureka indisponible au demarrage : {exc}")
+    try:
+        load_initial(await eureka_client.do_service_async(BOOK_SERVICE, "/api/books", return_type="json"))
+    except Exception as exc:
+        print(f"Chargement initial impossible : {exc}")
+    consumer_task = asyncio.create_task(run_consumer())
     yield
+    consumer_task.cancel()
     try:
         await eureka_client.stop_async()
     except Exception:
         pass
-
 
 app = FastAPI(
     title="Statistics Service",
@@ -110,15 +117,18 @@ async def borrowing_statistics():
 
 @app.get("/api/statistics", tags=["Statistics"])
 async def global_statistics():
-    books = await fetch_list(BOOK_SERVICE, "/api/books", "Book Service")
+    # Livres : etat local alimente par les evenements RabbitMQ (asynchrone)
+    total = len(books_state)
+    available = sum(1 for b in books_state.values() if b["available"])
+    # Emprunts : toujours en REST (borrowing-service ne publie pas d'evenements)
     borrowings = await fetch_list(BORROWING_SERVICE, "/api/borrowings", "Borrowing Service")
-    book_stats = compute_book_stats(books)
     borrowing_stats = compute_borrowing_stats(borrowings)
     return {
-        "totalBooks": book_stats["totalBooks"],
-        "availableBooks": book_stats["availableBooks"],
+        "totalBooks": total,
+        "availableBooks": available,
         "totalBorrowings": borrowing_stats["totalBorrowings"],
         "ongoingBorrowings": borrowing_stats["ongoingBorrowings"],
+        "source": "RabbitMQ (etat local) pour les livres",
     }
 
 

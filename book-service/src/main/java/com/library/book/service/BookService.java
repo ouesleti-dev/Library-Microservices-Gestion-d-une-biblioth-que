@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.library.book.client.ReviewClient;
 import com.library.book.dto.BookDetailsResponse;
 import com.library.book.dto.ReviewDto;
+import com.library.book.event.BookEventPublisher;
 
 import java.util.List;
 
@@ -16,14 +17,17 @@ import java.util.List;
 public class BookService {
     private ReviewClient reviewClient;
     private final BookRepository repository;
-    private final BorrowingClient borrowingClient;               // NOUVEAU
+    private final BorrowingClient borrowingClient;
+    private final BookEventPublisher eventPublisher;
 
     public BookService(BookRepository repository,
                        BorrowingClient borrowingClient,
-                       ReviewClient reviewClient) {
+                       ReviewClient reviewClient,
+                       BookEventPublisher eventPublisher) {
         this.repository = repository;
         this.borrowingClient = borrowingClient;
         this.reviewClient = reviewClient;
+        this.eventPublisher = eventPublisher;
     }
 
     public List<Book> findAll() {
@@ -44,7 +48,9 @@ public class BookService {
 
     public Book create(Book book) {
         book.setId(null);
-        return repository.save(book);
+        Book saved = repository.save(book);
+        eventPublisher.publish("BookCreated", "book.created", saved);   // NOUVEAU
+        return saved;
     }
 
     public Book update(Long id, Book data) {
@@ -54,7 +60,9 @@ public class BookService {
         existing.setCategory(data.getCategory());
         existing.setPublicationYear(data.getPublicationYear());
         existing.setAvailable(data.isAvailable());
-        return repository.save(existing);
+        Book saved = repository.save(existing);
+        eventPublisher.publish("BookUpdated", "book.updated", saved);   // NOUVEAU
+        return saved;
     }
 
     public void delete(Long id) {
@@ -69,5 +77,6 @@ public class BookService {
         }
 
         repository.delete(existing);
+        eventPublisher.publish("BookDeleted", "book.deleted", existing); // NOUVEAU
     }
 }
