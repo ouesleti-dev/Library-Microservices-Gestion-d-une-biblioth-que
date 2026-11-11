@@ -10,7 +10,8 @@ from contextlib import asynccontextmanager
 
 import py_eureka_client.eureka_client as eureka_client
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+from security import require_roles
 from py_eureka_client.http_client import HTTPError
 import asyncio
 from book_consumer import run_consumer, load_initial, books_state
@@ -103,19 +104,22 @@ async def health():
     return {"status": "UP", "service": "statistics-service"}
 
 
-@app.get("/api/statistics/books", tags=["Statistics"])
+@app.get("/api/statistics/books", tags=["Statistics"],
+         dependencies=[Depends(require_roles("USER", "ADMIN"))])
 async def book_statistics():
     books = await fetch_list(BOOK_SERVICE, "/api/books", "Book Service")
     return compute_book_stats(books)
 
 
-@app.get("/api/statistics/borrowings", tags=["Statistics"])
+@app.get("/api/statistics/borrowings", tags=["Statistics"],
+         dependencies=[Depends(require_roles("USER", "ADMIN"))])
 async def borrowing_statistics():
     borrowings = await fetch_list(BORROWING_SERVICE, "/api/borrowings", "Borrowing Service")
     return compute_borrowing_stats(borrowings)
 
 
-@app.get("/api/statistics", tags=["Statistics"])
+@app.get("/api/statistics", tags=["Statistics"],
+         dependencies=[Depends(require_roles("USER", "ADMIN"))])
 async def global_statistics():
     # Livres : etat local alimente par les evenements RabbitMQ (asynchrone)
     total = len(books_state)
