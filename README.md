@@ -4,7 +4,7 @@ Application de **gestion de bibliothèque** construite en **architecture microse
 
 Ce projet est aussi le support de l'**atelier « Implémentation Eureka Server »** (cours *Applications Web Distribuées*, UP_WEB, ESPRIT).
 
-> **Équipe** : Oueslati Mohamed, Zarrouk Nadim , Sahli Omaima , Hajji Aya , Manai Samar
+> **Équipe** : Oueslati Mohamed, Zarrouk Nadim , Sahli Omaima , Hajji Aya , Manai Samar , Neyrouz TOUMI
 
 ---
 
