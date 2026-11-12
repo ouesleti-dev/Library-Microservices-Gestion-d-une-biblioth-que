@@ -19,7 +19,7 @@ from book_consumer import run_consumer, load_initial, books_state
 # Le port declare a Eureka doit etre le meme que celui d'Uvicorn
 PORT = int(os.getenv("PORT", "8085"))
 EUREKA_SERVER = os.getenv("EUREKA_SERVER", "http://localhost:8761/eureka")
-
+HOST_NAME = os.getenv("HOST_NAME", "localhost")
 # Noms des services dans Eureka (spring.application.name en majuscules)
 BOOK_SERVICE = "BOOK-SERVICE"
 BORROWING_SERVICE = "BORROWING-SERVICE"
@@ -33,10 +33,10 @@ async def lifespan(app: FastAPI):
             eureka_server=EUREKA_SERVER,
             app_name="STATISTICS-SERVICE",
             instance_id=f"statistics-service:{PORT}",
-            instance_host="localhost",
+            instance_host=HOST_NAME,
             instance_port=PORT,
-            health_check_url=f"http://localhost:{PORT}/health",
-            status_page_url=f"http://localhost:{PORT}/health",
+            health_check_url=f"http://{HOST_NAME}:{PORT}/health",
+            status_page_url=f"http://{HOST_NAME}:{PORT}/health",
         )
         print(f"Statistics Service enregistre dans Eureka ({EUREKA_SERVER})")
     except Exception as exc:

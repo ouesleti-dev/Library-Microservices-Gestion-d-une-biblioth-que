@@ -7,7 +7,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import PyJWKClient
 
 ISSUER = os.getenv("KEYCLOAK_ISSUER", "http://localhost:8180/realms/library")
-JWKS_URL = ISSUER + "/protocol/openid-connect/certs"
+JWKS_URL = os.getenv("KEYCLOAK_JWKS_URL", ISSUER + "/protocol/openid-connect/certs")
 
 # Cles publiques de Keycloak, recuperees a la premiere requete puis mises en cache
 _jwks_client = PyJWKClient(JWKS_URL, cache_keys=True)

@@ -1,0 +1,30 @@
+{
+  "realm": "library",
+  "enabled": true,
+  "sslRequired": "none",
+  "accessTokenLifespan": 3600,
+  "roles": { "realm": [ { "name": "USER" }, { "name": "ADMIN" } ] },
+  "clients": [
+    {
+      "clientId": "library-client",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"]
+    }
+  ],
+  "users": [
+    {
+      "username": "nadim",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Nadim",
+      "lastName": "Zarrouk",
+      "email": "nadim.zarrouk@esprit.tn",
+      "credentials": [ { "type": "password", "value": "191929", "temporary": false } ],
+      "realmRoles": ["ADMIN", "USER"]
+    }
+  ]
+}

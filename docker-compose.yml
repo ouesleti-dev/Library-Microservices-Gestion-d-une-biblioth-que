@@ -1,0 +1,142 @@
+x-java-env: &java-env
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://keycloak:8080/realms/library/protocol/openid-connect/certs
+  JAVA_TOOL_OPTIONS: -Xmx256m
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    volumes:
+      - ./keycloak/library-realm.json:/opt/keycloak/data/import/library-realm.json:ro
+    ports:
+      - "8180:8080"
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mysql:
+    build: ./mysql
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  postgres:
+    build: ./postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d finedb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  eureka:
+    build: ./eureuka
+    ports:
+      - "8761:8761"
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx256m
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8090:8090"
+    environment:
+      <<: *java-env
+      EUREKA_INSTANCE_HOSTNAME: api-gateway
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: statistics-service
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://statistics-service:8085
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/statistics-service/**
+      SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0: StripPrefix=1
+    depends_on: [ eureka, keycloak ]
+    restart: on-failure
+
+  book-service:
+    build: ./book-service
+    environment:
+      <<: *java-env
+      EUREKA_INSTANCE_HOSTNAME: book-service
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/book_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      eureka: { condition: service_started }
+      mysql: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    restart: on-failure
+
+  member-service:
+    build: ./member-service
+    environment:
+      <<: *java-env
+      EUREKA_INSTANCE_HOSTNAME: member-service
+    depends_on: [eureka]
+    restart: on-failure
+
+  borrowing-service:
+    build: ./borrowing-service
+    environment:
+      <<: *java-env
+      EUREKA_INSTANCE_HOSTNAME: borrowing-service
+    depends_on: [eureka]
+    restart: on-failure
+
+  fine-service:
+    build: ./fine-service
+    environment:
+      <<: *java-env
+      EUREKA_INSTANCE_HOSTNAME: fine-service
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/finedb
+    depends_on:
+      eureka: { condition: service_started }
+      postgres: { condition: service_healthy }
+    restart: on-failure
+
+  reservation-service:
+    build: ./reservation-service
+    environment:
+      <<: *java-env
+      EUREKA_INSTANCE_HOSTNAME: reservation-service
+    depends_on: [eureka]
+    restart: on-failure
+
+  review-service:
+    build: ./review-service
+    environment:
+      <<: *java-env
+      EUREKA_INSTANCE_HOSTNAME: review-service
+    depends_on: [eureka]
+    restart: on-failure
+
+
+
+  statistics-service:
+    build: ./statistics-service
+    environment:
+      PORT: "8085"
+      EUREKA_SERVER: http://eureka:8761/eureka
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      KEYCLOAK_ISSUER: http://localhost:8180/realms/library
+      KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/library/protocol/openid-connect/certs
+      HOST_NAME: statistics-service
+    depends_on:
+      eureka: { condition: service_started }
+      rabbitmq: { condition: service_healthy }
+    restart: on-failure
+volumes:
+  mysql_data:
+  postgres_data:
